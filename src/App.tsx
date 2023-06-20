@@ -1,5 +1,4 @@
 import React from "react";
-import { Counter } from "./features/counter/Counter";
 import "./App.css";
 import { BrowserRouter, Route } from "react-router-dom";
 import { Router } from "react-router-dom";
