@@ -8,14 +8,16 @@
 /* eslint-disable */
 // ReSharper disable InconsistentNaming
 
-import axios, { AxiosError, AxiosInstance, AxiosRequestConfig, AxiosResponse, CancelToken } from 'axios';
+import { ApiClientBase } from "./ApiClientBase";import axios, { AxiosError, AxiosInstance, AxiosRequestConfig, AxiosResponse, CancelToken } from 'axios';
 
-export class Client {
+export class Client extends ApiClientBase {
     private instance: AxiosInstance;
     private baseUrl: string;
     protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
 
     constructor(baseUrl?: string, instance?: AxiosInstance) {
+
+        super();
 
         this.instance = instance ? instance : axios.create();
 
@@ -26,7 +28,7 @@ export class Client {
     /**
      * @return Success
      */
-    getAllAtracoes(  cancelToken?: CancelToken | undefined): Promise<AtracaoTuristica> {
+    atracaoTuristicaAll(  cancelToken?: CancelToken | undefined): Promise<AtracaoTuristica[]> {
         let url_ = this.baseUrl + "/api/AtracaoTuristica";
         url_ = url_.replace(/[?&]$/, "");
 
@@ -46,11 +48,11 @@ export class Client {
                 throw _error;
             }
         }).then((_response: AxiosResponse) => {
-            return this.processGetAllAtracoes(_response);
+            return this.processAtracaoTuristicaAll(_response);
         });
     }
 
-    protected processGetAllAtracoes(response: AxiosResponse): Promise<AtracaoTuristica> {
+    protected processAtracaoTuristicaAll(response: AxiosResponse): Promise<AtracaoTuristica[]> {
         const status = response.status;
         let _headers: any = {};
         if (response.headers && typeof response.headers === "object") {
@@ -64,14 +66,21 @@ export class Client {
             const _responseText = response.data;
             let result200: any = null;
             let resultData200  = _responseText;
-            result200 = AtracaoTuristica.fromJS(resultData200);
-            return Promise.resolve<AtracaoTuristica>(result200);
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200!.push(AtracaoTuristica.fromJS(item));
+            }
+            else {
+                result200 = <any>null;
+            }
+            return Promise.resolve<AtracaoTuristica[]>(result200);
 
         } else if (status !== 200 && status !== 204) {
             const _responseText = response.data;
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
         }
-        return Promise.resolve<AtracaoTuristica>(null as any);
+        return Promise.resolve<AtracaoTuristica[]>(null as any);
     }
 
     /**
@@ -245,7 +254,7 @@ export class Client {
     /**
      * @return Success
      */
-    getAtracaoById(id: number , cancelToken?: CancelToken | undefined): Promise<AtracaoTuristica> {
+    atracaoTuristicaGET(id: number , cancelToken?: CancelToken | undefined): Promise<AtracaoTuristica> {
         let url_ = this.baseUrl + "/api/AtracaoTuristica/{id}";
         if (id === undefined || id === null)
             throw new Error("The parameter 'id' must be defined.");
@@ -268,11 +277,11 @@ export class Client {
                 throw _error;
             }
         }).then((_response: AxiosResponse) => {
-            return this.processGetAtracaoById(_response);
+            return this.processAtracaoTuristicaGET(_response);
         });
     }
 
-    protected processGetAtracaoById(response: AxiosResponse): Promise<AtracaoTuristica> {
+    protected processAtracaoTuristicaGET(response: AxiosResponse): Promise<AtracaoTuristica> {
         const status = response.status;
         let _headers: any = {};
         if (response.headers && typeof response.headers === "object") {
@@ -1994,6 +2003,181 @@ export class Client {
     }
 
     /**
+     * @param email (optional) 
+     * @return Success
+     */
+    email(email?: string | undefined , cancelToken?: CancelToken | undefined): Promise<Usuario> {
+        let url_ = this.baseUrl + "/api/Usuario/email?";
+        if (email === null)
+            throw new Error("The parameter 'email' cannot be null.");
+        else if (email !== undefined)
+            url_ += "email=" + encodeURIComponent("" + email) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: AxiosRequestConfig = {
+            method: "GET",
+            url: url_,
+            headers: {
+                "Accept": "text/plain"
+            },
+            cancelToken
+        };
+
+        return this.instance.request(options_).catch((_error: any) => {
+            if (isAxiosError(_error) && _error.response) {
+                return _error.response;
+            } else {
+                throw _error;
+            }
+        }).then((_response: AxiosResponse) => {
+            return this.processEmail(_response);
+        });
+    }
+
+    protected processEmail(response: AxiosResponse): Promise<Usuario> {
+        const status = response.status;
+        let _headers: any = {};
+        if (response.headers && typeof response.headers === "object") {
+            for (let k in response.headers) {
+                if (response.headers.hasOwnProperty(k)) {
+                    _headers[k] = response.headers[k];
+                }
+            }
+        }
+        if (status === 200) {
+            const _responseText = response.data;
+            let result200: any = null;
+            let resultData200  = _responseText;
+            result200 = Usuario.fromJS(resultData200);
+            return Promise.resolve<Usuario>(result200);
+
+        } else if (status !== 200 && status !== 204) {
+            const _responseText = response.data;
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+        }
+        return Promise.resolve<Usuario>(null as any);
+    }
+
+    /**
+     * @param email (optional) 
+     * @return Success
+     */
+    verificaremailexiste(email?: string | undefined , cancelToken?: CancelToken | undefined): Promise<boolean> {
+        let url_ = this.baseUrl + "/api/Usuario/verificaremailexiste?";
+        if (email === null)
+            throw new Error("The parameter 'email' cannot be null.");
+        else if (email !== undefined)
+            url_ += "email=" + encodeURIComponent("" + email) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: AxiosRequestConfig = {
+            method: "GET",
+            url: url_,
+            headers: {
+                "Accept": "text/plain"
+            },
+            cancelToken
+        };
+
+        return this.instance.request(options_).catch((_error: any) => {
+            if (isAxiosError(_error) && _error.response) {
+                return _error.response;
+            } else {
+                throw _error;
+            }
+        }).then((_response: AxiosResponse) => {
+            return this.processVerificaremailexiste(_response);
+        });
+    }
+
+    protected processVerificaremailexiste(response: AxiosResponse): Promise<boolean> {
+        const status = response.status;
+        let _headers: any = {};
+        if (response.headers && typeof response.headers === "object") {
+            for (let k in response.headers) {
+                if (response.headers.hasOwnProperty(k)) {
+                    _headers[k] = response.headers[k];
+                }
+            }
+        }
+        if (status === 200) {
+            const _responseText = response.data;
+            let result200: any = null;
+            let resultData200  = _responseText;
+                result200 = resultData200 !== undefined ? resultData200 : <any>null;
+    
+            return Promise.resolve<boolean>(result200);
+
+        } else if (status !== 200 && status !== 204) {
+            const _responseText = response.data;
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+        }
+        return Promise.resolve<boolean>(null as any);
+    }
+
+    /**
+     * @param email (optional) 
+     * @param senha (optional) 
+     * @return Success
+     */
+    validar(email?: string | undefined, senha?: string | undefined , cancelToken?: CancelToken | undefined): Promise<boolean> {
+        let url_ = this.baseUrl + "/api/Usuario/validar?";
+        if (email === null)
+            throw new Error("The parameter 'email' cannot be null.");
+        else if (email !== undefined)
+            url_ += "email=" + encodeURIComponent("" + email) + "&";
+        if (senha === null)
+            throw new Error("The parameter 'senha' cannot be null.");
+        else if (senha !== undefined)
+            url_ += "senha=" + encodeURIComponent("" + senha) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: AxiosRequestConfig = {
+            method: "GET",
+            url: url_,
+            headers: {
+                "Accept": "text/plain"
+            },
+            cancelToken
+        };
+
+        return this.instance.request(options_).catch((_error: any) => {
+            if (isAxiosError(_error) && _error.response) {
+                return _error.response;
+            } else {
+                throw _error;
+            }
+        }).then((_response: AxiosResponse) => {
+            return this.processValidar(_response);
+        });
+    }
+
+    protected processValidar(response: AxiosResponse): Promise<boolean> {
+        const status = response.status;
+        let _headers: any = {};
+        if (response.headers && typeof response.headers === "object") {
+            for (let k in response.headers) {
+                if (response.headers.hasOwnProperty(k)) {
+                    _headers[k] = response.headers[k];
+                }
+            }
+        }
+        if (status === 200) {
+            const _responseText = response.data;
+            let result200: any = null;
+            let resultData200  = _responseText;
+                result200 = resultData200 !== undefined ? resultData200 : <any>null;
+    
+            return Promise.resolve<boolean>(result200);
+
+        } else if (status !== 200 && status !== 204) {
+            const _responseText = response.data;
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+        }
+        return Promise.resolve<boolean>(null as any);
+    }
+
+    /**
      * @return Success
      */
     viagemAll(  cancelToken?: CancelToken | undefined): Promise<Viagem[]> {
@@ -2272,12 +2456,136 @@ export class Client {
         }
         return Promise.resolve<Viagem>(null as any);
     }
+
+    /**
+     * @return Success
+     */
+    viagens(  cancelToken?: CancelToken | undefined): Promise<Viagem[]> {
+        let url_ = this.baseUrl + "/api/Viagem/viagens";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: AxiosRequestConfig = {
+            method: "GET",
+            url: url_,
+            headers: {
+                "Accept": "text/plain"
+            },
+            cancelToken
+        };
+
+        return this.instance.request(options_).catch((_error: any) => {
+            if (isAxiosError(_error) && _error.response) {
+                return _error.response;
+            } else {
+                throw _error;
+            }
+        }).then((_response: AxiosResponse) => {
+            return this.processViagens(_response);
+        });
+    }
+
+    protected processViagens(response: AxiosResponse): Promise<Viagem[]> {
+        const status = response.status;
+        let _headers: any = {};
+        if (response.headers && typeof response.headers === "object") {
+            for (let k in response.headers) {
+                if (response.headers.hasOwnProperty(k)) {
+                    _headers[k] = response.headers[k];
+                }
+            }
+        }
+        if (status === 200) {
+            const _responseText = response.data;
+            let result200: any = null;
+            let resultData200  = _responseText;
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200!.push(Viagem.fromJS(item));
+            }
+            else {
+                result200 = <any>null;
+            }
+            return Promise.resolve<Viagem[]>(result200);
+
+        } else if (status !== 200 && status !== 204) {
+            const _responseText = response.data;
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+        }
+        return Promise.resolve<Viagem[]>(null as any);
+    }
+
+    /**
+     * @param email (optional) 
+     * @return Success
+     */
+    viagensUsuario(email?: string | undefined , cancelToken?: CancelToken | undefined): Promise<Viagem[]> {
+        let url_ = this.baseUrl + "/api/Viagem/viagensUsuario?";
+        if (email === null)
+            throw new Error("The parameter 'email' cannot be null.");
+        else if (email !== undefined)
+            url_ += "email=" + encodeURIComponent("" + email) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: AxiosRequestConfig = {
+            method: "GET",
+            url: url_,
+            headers: {
+                "Accept": "text/plain"
+            },
+            cancelToken
+        };
+
+        return this.instance.request(options_).catch((_error: any) => {
+            if (isAxiosError(_error) && _error.response) {
+                return _error.response;
+            } else {
+                throw _error;
+            }
+        }).then((_response: AxiosResponse) => {
+            return this.processViagensUsuario(_response);
+        });
+    }
+
+    protected processViagensUsuario(response: AxiosResponse): Promise<Viagem[]> {
+        const status = response.status;
+        let _headers: any = {};
+        if (response.headers && typeof response.headers === "object") {
+            for (let k in response.headers) {
+                if (response.headers.hasOwnProperty(k)) {
+                    _headers[k] = response.headers[k];
+                }
+            }
+        }
+        if (status === 200) {
+            const _responseText = response.data;
+            let result200: any = null;
+            let resultData200  = _responseText;
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200!.push(Viagem.fromJS(item));
+            }
+            else {
+                result200 = <any>null;
+            }
+            return Promise.resolve<Viagem[]>(result200);
+
+        } else if (status !== 200 && status !== 204) {
+            const _responseText = response.data;
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+        }
+        return Promise.resolve<Viagem[]>(null as any);
+    }
 }
 
 export class AtracaoTuristica {
     id?: number;
     nome?: string | undefined;
     descricao?: string | undefined;
+    local?: Local;
+    localId?: number | undefined;
+    valorIngresso?: number;
     imagemBase64?: string | undefined;
 
     init(_data?: any) {
@@ -2285,6 +2593,9 @@ export class AtracaoTuristica {
             this.id = _data["id"];
             this.nome = _data["nome"];
             this.descricao = _data["descricao"];
+            this.local = _data["local"] ? Local.fromJS(_data["local"]) : <any>undefined;
+            this.localId = _data["localId"];
+            this.valorIngresso = _data["valorIngresso"];
             this.imagemBase64 = _data["imagemBase64"];
         }
     }
@@ -2301,7 +2612,48 @@ export class AtracaoTuristica {
         data["id"] = this.id;
         data["nome"] = this.nome;
         data["descricao"] = this.descricao;
+        data["local"] = this.local ? this.local.toJSON() : <any>undefined;
+        data["localId"] = this.localId;
+        data["valorIngresso"] = this.valorIngresso;
         data["imagemBase64"] = this.imagemBase64;
+        return data;
+    }
+}
+
+export class Despesas {
+    id?: number;
+    custosTransporte?: number;
+    custosHospedagem?: number;
+    custosAtracoesTuristicas?: number;
+    custosRestaurantes?: number;
+    custosExtras?: number;
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.custosTransporte = _data["custosTransporte"];
+            this.custosHospedagem = _data["custosHospedagem"];
+            this.custosAtracoesTuristicas = _data["custosAtracoesTuristicas"];
+            this.custosRestaurantes = _data["custosRestaurantes"];
+            this.custosExtras = _data["custosExtras"];
+        }
+    }
+
+    static fromJS(data: any): Despesas {
+        data = typeof data === 'object' ? data : {};
+        let result = new Despesas();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["custosTransporte"] = this.custosTransporte;
+        data["custosHospedagem"] = this.custosHospedagem;
+        data["custosAtracoesTuristicas"] = this.custosAtracoesTuristicas;
+        data["custosRestaurantes"] = this.custosRestaurantes;
+        data["custosExtras"] = this.custosExtras;
         return data;
     }
 }
@@ -2311,6 +2663,7 @@ export class Destino {
     nome?: string | undefined;
     descricao?: string | undefined;
     local?: Local;
+    localId?: number;
     atracoes?: AtracaoTuristica[] | undefined;
     hoteis?: Hotel[] | undefined;
     restaurantes?: Restaurante[] | undefined;
@@ -2321,6 +2674,7 @@ export class Destino {
             this.nome = _data["nome"];
             this.descricao = _data["descricao"];
             this.local = _data["local"] ? Local.fromJS(_data["local"]) : <any>undefined;
+            this.localId = _data["localId"];
             if (Array.isArray(_data["atracoes"])) {
                 this.atracoes = [] as any;
                 for (let item of _data["atracoes"])
@@ -2352,6 +2706,7 @@ export class Destino {
         data["nome"] = this.nome;
         data["descricao"] = this.descricao;
         data["local"] = this.local ? this.local.toJSON() : <any>undefined;
+        data["localId"] = this.localId;
         if (Array.isArray(this.atracoes)) {
             data["atracoes"] = [];
             for (let item of this.atracoes)
@@ -2374,16 +2729,24 @@ export class Destino {
 export class Hotel {
     id?: number;
     nome?: string | undefined;
-    endereco?: string | undefined;
+    local?: Local;
+    localId?: number;
     classificacao?: number;
+    tiposQuarto?: TipoQuarto[] | undefined;
     imagemBase64?: string | undefined;
 
     init(_data?: any) {
         if (_data) {
             this.id = _data["id"];
             this.nome = _data["nome"];
-            this.endereco = _data["endereco"];
+            this.local = _data["local"] ? Local.fromJS(_data["local"]) : <any>undefined;
+            this.localId = _data["localId"];
             this.classificacao = _data["classificacao"];
+            if (Array.isArray(_data["tiposQuarto"])) {
+                this.tiposQuarto = [] as any;
+                for (let item of _data["tiposQuarto"])
+                    this.tiposQuarto!.push(TipoQuarto.fromJS(item));
+            }
             this.imagemBase64 = _data["imagemBase64"];
         }
     }
@@ -2399,8 +2762,14 @@ export class Hotel {
         data = typeof data === 'object' ? data : {};
         data["id"] = this.id;
         data["nome"] = this.nome;
-        data["endereco"] = this.endereco;
+        data["local"] = this.local ? this.local.toJSON() : <any>undefined;
+        data["localId"] = this.localId;
         data["classificacao"] = this.classificacao;
+        if (Array.isArray(this.tiposQuarto)) {
+            data["tiposQuarto"] = [];
+            for (let item of this.tiposQuarto)
+                data["tiposQuarto"].push(item.toJSON());
+        }
         data["imagemBase64"] = this.imagemBase64;
         return data;
     }
@@ -2413,6 +2782,7 @@ export class Local {
     cidade?: string | undefined;
     estado?: string | undefined;
     pais?: string | undefined;
+    imagemLocal?: string | undefined;
 
     init(_data?: any) {
         if (_data) {
@@ -2422,6 +2792,7 @@ export class Local {
             this.cidade = _data["cidade"];
             this.estado = _data["estado"];
             this.pais = _data["pais"];
+            this.imagemLocal = _data["imagemLocal"];
         }
     }
 
@@ -2440,6 +2811,7 @@ export class Local {
         data["cidade"] = this.cidade;
         data["estado"] = this.estado;
         data["pais"] = this.pais;
+        data["imagemLocal"] = this.imagemLocal;
         return data;
     }
 }
@@ -2447,17 +2819,35 @@ export class Local {
 export class ParteViagem {
     id?: number;
     idViagem?: number;
-    destino?: Destino;
-    dataInical?: Date;
+    viagem?: Viagem;
+    hotel?: Hotel;
+    atracoesVisitadas?: AtracaoTuristica[] | undefined;
+    restaurantesVisitados?: Restaurante[] | undefined;
+    dataInicial?: Date;
     dataFinal?: Date;
+    despesas?: Despesas;
+    despesasId?: number | undefined;
 
     init(_data?: any) {
         if (_data) {
             this.id = _data["id"];
             this.idViagem = _data["idViagem"];
-            this.destino = _data["destino"] ? Destino.fromJS(_data["destino"]) : <any>undefined;
-            this.dataInical = _data["dataInical"] ? new Date(_data["dataInical"].toString()) : <any>undefined;
+            this.viagem = _data["viagem"] ? Viagem.fromJS(_data["viagem"]) : <any>undefined;
+            this.hotel = _data["hotel"] ? Hotel.fromJS(_data["hotel"]) : <any>undefined;
+            if (Array.isArray(_data["atracoesVisitadas"])) {
+                this.atracoesVisitadas = [] as any;
+                for (let item of _data["atracoesVisitadas"])
+                    this.atracoesVisitadas!.push(AtracaoTuristica.fromJS(item));
+            }
+            if (Array.isArray(_data["restaurantesVisitados"])) {
+                this.restaurantesVisitados = [] as any;
+                for (let item of _data["restaurantesVisitados"])
+                    this.restaurantesVisitados!.push(Restaurante.fromJS(item));
+            }
+            this.dataInicial = _data["dataInicial"] ? new Date(_data["dataInicial"].toString()) : <any>undefined;
             this.dataFinal = _data["dataFinal"] ? new Date(_data["dataFinal"].toString()) : <any>undefined;
+            this.despesas = _data["despesas"] ? Despesas.fromJS(_data["despesas"]) : <any>undefined;
+            this.despesasId = _data["despesasId"];
         }
     }
 
@@ -2472,9 +2862,22 @@ export class ParteViagem {
         data = typeof data === 'object' ? data : {};
         data["id"] = this.id;
         data["idViagem"] = this.idViagem;
-        data["destino"] = this.destino ? this.destino.toJSON() : <any>undefined;
-        data["dataInical"] = this.dataInical ? this.dataInical.toISOString() : <any>undefined;
+        data["viagem"] = this.viagem ? this.viagem.toJSON() : <any>undefined;
+        data["hotel"] = this.hotel ? this.hotel.toJSON() : <any>undefined;
+        if (Array.isArray(this.atracoesVisitadas)) {
+            data["atracoesVisitadas"] = [];
+            for (let item of this.atracoesVisitadas)
+                data["atracoesVisitadas"].push(item.toJSON());
+        }
+        if (Array.isArray(this.restaurantesVisitados)) {
+            data["restaurantesVisitados"] = [];
+            for (let item of this.restaurantesVisitados)
+                data["restaurantesVisitados"].push(item.toJSON());
+        }
+        data["dataInicial"] = this.dataInicial ? this.dataInicial.toISOString() : <any>undefined;
         data["dataFinal"] = this.dataFinal ? this.dataFinal.toISOString() : <any>undefined;
+        data["despesas"] = this.despesas ? this.despesas.toJSON() : <any>undefined;
+        data["despesasId"] = this.despesasId;
         return data;
     }
 }
@@ -2528,16 +2931,22 @@ export class Restaurante {
     id?: number;
     nome?: string | undefined;
     local?: Local;
+    localId?: number;
     tipoCozinha?: TipoCozinha;
+    tipoCozinhaId?: number;
     imagemBase64?: string | undefined;
+    valorMedio?: number;
 
     init(_data?: any) {
         if (_data) {
             this.id = _data["id"];
             this.nome = _data["nome"];
             this.local = _data["local"] ? Local.fromJS(_data["local"]) : <any>undefined;
-            this.tipoCozinha = _data["tipoCozinha"];
+            this.localId = _data["localId"];
+            this.tipoCozinha = _data["tipoCozinha"] ? TipoCozinha.fromJS(_data["tipoCozinha"]) : <any>undefined;
+            this.tipoCozinhaId = _data["tipoCozinhaId"];
             this.imagemBase64 = _data["imagemBase64"];
+            this.valorMedio = _data["valorMedio"];
         }
     }
 
@@ -2553,19 +2962,68 @@ export class Restaurante {
         data["id"] = this.id;
         data["nome"] = this.nome;
         data["local"] = this.local ? this.local.toJSON() : <any>undefined;
-        data["tipoCozinha"] = this.tipoCozinha;
+        data["localId"] = this.localId;
+        data["tipoCozinha"] = this.tipoCozinha ? this.tipoCozinha.toJSON() : <any>undefined;
+        data["tipoCozinhaId"] = this.tipoCozinhaId;
         data["imagemBase64"] = this.imagemBase64;
+        data["valorMedio"] = this.valorMedio;
         return data;
     }
 }
 
-export enum TipoCozinha {
-    _0 = 0,
-    _1 = 1,
-    _2 = 2,
-    _3 = 3,
-    _4 = 4,
-    _5 = 5,
+export class TipoCozinha {
+    id?: number;
+    nome?: string | undefined;
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.nome = _data["nome"];
+        }
+    }
+
+    static fromJS(data: any): TipoCozinha {
+        data = typeof data === 'object' ? data : {};
+        let result = new TipoCozinha();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["nome"] = this.nome;
+        return data;
+    }
+}
+
+export class TipoQuarto {
+    id?: number;
+    nome?: string | undefined;
+    precoDiaria?: number;
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.nome = _data["nome"];
+            this.precoDiaria = _data["precoDiaria"];
+        }
+    }
+
+    static fromJS(data: any): TipoQuarto {
+        data = typeof data === 'object' ? data : {};
+        let result = new TipoQuarto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["nome"] = this.nome;
+        data["precoDiaria"] = this.precoDiaria;
+        return data;
+    }
 }
 
 export class Usuario {
@@ -2574,8 +3032,9 @@ export class Usuario {
     senha?: string | undefined;
     nome?: string | undefined;
     telefone?: string | undefined;
-    itinerario?: Viagem[] | undefined;
+    viagens?: Viagem[] | undefined;
     imagemPerfilBase64?: string | undefined;
+    tipoPermissao?: string | undefined;
 
     init(_data?: any) {
         if (_data) {
@@ -2584,12 +3043,13 @@ export class Usuario {
             this.senha = _data["senha"];
             this.nome = _data["nome"];
             this.telefone = _data["telefone"];
-            if (Array.isArray(_data["itinerario"])) {
-                this.itinerario = [] as any;
-                for (let item of _data["itinerario"])
-                    this.itinerario!.push(Viagem.fromJS(item));
+            if (Array.isArray(_data["viagens"])) {
+                this.viagens = [] as any;
+                for (let item of _data["viagens"])
+                    this.viagens!.push(Viagem.fromJS(item));
             }
             this.imagemPerfilBase64 = _data["imagemPerfilBase64"];
+            this.tipoPermissao = _data["tipoPermissao"];
         }
     }
 
@@ -2607,23 +3067,32 @@ export class Usuario {
         data["senha"] = this.senha;
         data["nome"] = this.nome;
         data["telefone"] = this.telefone;
-        if (Array.isArray(this.itinerario)) {
-            data["itinerario"] = [];
-            for (let item of this.itinerario)
-                data["itinerario"].push(item.toJSON());
+        if (Array.isArray(this.viagens)) {
+            data["viagens"] = [];
+            for (let item of this.viagens)
+                data["viagens"].push(item.toJSON());
         }
         data["imagemPerfilBase64"] = this.imagemPerfilBase64;
+        data["tipoPermissao"] = this.tipoPermissao;
         return data;
     }
 }
 
 export class Viagem {
     id?: number;
+    usuario?: Usuario;
+    usuarioId?: number;
+    nome?: string | undefined;
+    orcamento?: number;
     partesViagem?: ParteViagem[] | undefined;
 
     init(_data?: any) {
         if (_data) {
             this.id = _data["id"];
+            this.usuario = _data["usuario"] ? Usuario.fromJS(_data["usuario"]) : <any>undefined;
+            this.usuarioId = _data["usuarioId"];
+            this.nome = _data["nome"];
+            this.orcamento = _data["orcamento"];
             if (Array.isArray(_data["partesViagem"])) {
                 this.partesViagem = [] as any;
                 for (let item of _data["partesViagem"])
@@ -2642,6 +3111,10 @@ export class Viagem {
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
         data["id"] = this.id;
+        data["usuario"] = this.usuario ? this.usuario.toJSON() : <any>undefined;
+        data["usuarioId"] = this.usuarioId;
+        data["nome"] = this.nome;
+        data["orcamento"] = this.orcamento;
         if (Array.isArray(this.partesViagem)) {
             data["partesViagem"] = [];
             for (let item of this.partesViagem)

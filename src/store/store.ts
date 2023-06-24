@@ -6,14 +6,26 @@ import {
 } from "@reduxjs/toolkit";
 import { useDispatch } from "react-redux";
 import hotelReducer from "../store/Hotel.store";
+import atracaoTuristicaReducer from "../store/AtracaoTuristica.store";
+import restauranteReducer from "./Restaurante.store";
+import usuarioReducer from "./Usuario.store";
+import viagemReducer from "./Viagem.store";
+import destinoReducer from "./Destino.store";
 // ...
 
 const store = configureStore({
-  reducer: { hotelState: hotelReducer },
+  reducer: {
+    hotelState: hotelReducer,
+    atracaoTuristicaState: atracaoTuristicaReducer,
+    restauranteStore: restauranteReducer,
+    usuarioStore: usuarioReducer,
+    viagemStore: viagemReducer,
+    destinoStore: destinoReducer,
+  },
   middleware: getDefaultMiddleware({
     serializableCheck: false,
     immutableCheck: false,
-  })
+  }),
 });
 
 export type RootState = ReturnType<typeof store.getState>;
